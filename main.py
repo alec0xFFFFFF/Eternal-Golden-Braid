@@ -7,10 +7,31 @@ class EternalGoldenBraid(object):
         # todo find limit of ratio between length and width
         # todo record polygons?
         # todo input color and get three shades of it
-        self.length = 290
-        self.width = 40
-        self.color = 'yellow'
-        self.draw_eternal_golden_braid()
+        # todo limit
+        self.length = 75
+        self.width = int(self.length / 4)  # width cannot be greater than a quarter of the length
+        window = turtle.Screen()
+        window.bgcolor("black")  # background color
+        max_x, max_y = window.screensize()
+        # todo generate a ton of coordinates
+        coordinates = []
+
+        # todo calculate start, end and spacing based on length and width
+        y_spacing = int(self.length + (1.2 * self.width))
+        y_end = int(max_y + y_spacing)# ((3*self.length)/7))
+        y_start = -y_end
+
+        x_spacing = int(self.length + (2 * self.width))
+        x_end = int(max_x + x_spacing)# (self.length/2))
+        x_start = -x_end
+
+        for y in range(y_start, y_end, y_spacing):
+            for x in range(x_start, x_end, x_spacing):
+                coordinates.append([x, y])
+        random.shuffle(coordinates)  # shuffle order braids are drawn
+        for coordinate_set in coordinates:
+            self.draw_eternal_golden_braid(coordinate_set)
+        window.exitonclick()
 
     def draw_eternal_golden_braid_third(self, my_turtle, fill_color):
         my_turtle.color('black', fill_color)
@@ -44,25 +65,27 @@ class EternalGoldenBraid(object):
         my_turtle.forward(70)
         my_turtle.left(90)
 
-    @staticmethod
-    def generate_random_color_gradient_list():
+    def generate_random_color_gradient_list(self):
         # todo get input color and convert to hex
         # todo get hex stopping point programmatically
         start_color = generate_random_hex_color_code()
         color_int = int(start_color[1:], base=16)
         color_int += 12800
+        if color_int > 16777214:  # handles when end color is out of bounds #FFFFFF
+            return self.generate_random_color_gradient_list()
         end_color = '#' + str(hex(color_int))[2:]
-        print("start color: " + start_color)
-        print("end color: " + end_color)
         # todo handle out of range
         # todo make sure they are shades of same color
         return linear_gradient(start_color, end_color, 3)
 
-    def draw_eternal_golden_braid(self):
-        window = turtle.Screen()
-        window.bgcolor("black")  # background color
+    def draw_eternal_golden_braid(self, coordinates):
+
         tom = turtle.Turtle()
-        self.center_turtle_for_drawing(tom)
+        tom.speed(0)
+        tom.hideturtle()
+        tom.penup()
+        tom.goto(coordinates[0], coordinates[1])
+        # self.center_turtle_for_drawing(tom)
         color_list = self.generate_random_color_gradient_list()
         for i in range(3):
             # determine color
@@ -71,7 +94,7 @@ class EternalGoldenBraid(object):
             # resets
             tom.backward(self.length-(self.width*3))
             tom.left(180)
-        window.exitonclick()
+        tom.penup()
 
 
 def generate_random_hex_color_code():
